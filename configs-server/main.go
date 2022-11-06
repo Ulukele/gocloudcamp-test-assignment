@@ -2,7 +2,9 @@ package main
 
 import (
 	"configs-server/data"
+	_ "configs-server/docs"
 	"configs-server/server"
+	"fmt"
 	"log"
 	"os"
 )
@@ -25,5 +27,6 @@ func main() {
 	s := server.NewServer(manager)
 
 	// Start server
-	log.Fatal(s.StartServer())
+	serverPort := os.Getenv("PORT")
+	log.Fatal(s.StartServer(fmt.Sprintf(":%s", serverPort)))
 }

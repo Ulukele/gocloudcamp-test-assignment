@@ -61,7 +61,6 @@ func NewManager(config MongoConnectionConfig) (*Manager, error) {
 		config.Host,
 		optionsString)
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
-	log.Printf("Connected to %s", uri)
 
 	return &Manager{client: client}, nil
 }
@@ -105,7 +104,18 @@ func (m *Manager) ReadConfigWithVersion(service string, version int) (ConfigEnti
 
 func (m *Manager) CreateConfig(config ConfigEntity) error {
 	coll := m.client.Database("configs").Collection("configs")
-	_, err := coll.InsertOne(context.TODO(), config)
+
+	// Check if already exist
+	filter := bson.D{{"service", config.Service}, {"version", config.Version}}
+	count, err := coll.CountDocuments(context.TODO(), filter)
+	if err != nil {
+		return err
+	}
+	if count != 0 {
+		return fmt.Errorf("such config already exists")
+	}
+
+	_, err = coll.InsertOne(context.TODO(), config)
 	if err != nil {
 		return err
 	}
@@ -126,6 +136,17 @@ func (m *Manager) ReadConfig(service string) (ConfigEntity, error) {
 }
 
 func (m *Manager) UpdateConfig(config ConfigEntity) (ConfigEntity, error) {
+
+	// Check if exist
+	coll := m.client.Database("configs").Collection("configs")
+	filter := bson.D{{"service", config.Service}}
+	count, err := coll.CountDocuments(context.TODO(), filter)
+	if err != nil {
+		return ConfigEntity{}, err
+	}
+	if count == 0 {
+		return ConfigEntity{}, fmt.Errorf("there is no such config")
+	}
 
 	configOld, err := m.ReadConfig(config.Service)
 	if err != nil {

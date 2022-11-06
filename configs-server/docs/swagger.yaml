@@ -1,0 +1,102 @@
+definitions:
+  models.Config:
+    properties:
+      data:
+        additionalProperties:
+          type: string
+        type: object
+      service:
+        type: string
+      version:
+        type: string
+    type: object
+  models.ConfigDef:
+    properties:
+      data:
+        additionalProperties:
+          type: string
+        type: object
+      service:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /config/:
+    delete:
+      description: Responds with the all configs versions as JSON.
+      parameters:
+      - description: delete configs by service
+        in: path
+        name: service
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Config'
+            type: array
+      summary: Deletes all config versions
+      tags:
+      - configs
+    get:
+      description: Responds with the config as JSON.
+      parameters:
+      - description: search config by service
+        in: path
+        name: service
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Config'
+      summary: Reads the latest version of the config
+      tags:
+      - configs
+    post:
+      description: Responds with the config as JSON.
+      parameters:
+      - description: Config JSON
+        in: body
+        name: config
+        required: true
+        schema:
+          $ref: '#/definitions/models.ConfigDef'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Config'
+      summary: Create config
+      tags:
+      - configs
+    put:
+      description: Responds with the config as JSON.
+      parameters:
+      - description: Config JSON
+        in: body
+        name: config
+        required: true
+        schema:
+          $ref: '#/definitions/models.ConfigDef'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Config'
+      summary: Creates new config version
+      tags:
+      - configs
+swagger: "2.0"
